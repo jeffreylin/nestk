@@ -34,6 +34,31 @@ namespace opt
   ntk::arg<bool> high_resolution("--highres", "High resolution color image.", 0);
 }
 
+cv::Mat3b customProcessing(cv::Mat3b color, cv::Mat3b depthRaw)
+// color is the color image
+// depthRaw is the pre-aligned raw depth data (values are from 0-1023 i think)
+// output is the output image that this function should populate
+// color and depthRaw should be READ-ONLY, please don't mess them up? =]
+// feel free to write to output all you want though =]
+{
+	//const Size IMG_SIZE = color.size();
+	//const int IMG_DEPTH = color.depth();
+	//const int IMG_CHANNELS = color.channels();
+
+
+	return cvCreateMat(color.rows, color.cols, color.type());
+	/*
+	cv::Mat3b output;
+	color.copyTo(output);
+	return output;
+	//cv::Mat3b output = cvCreateImage( IMG_SIZE, IMG_DEPTH, IMG_CHANNELS );
+	//cvZero(output);
+	//cv::Mat3b output;
+	//color.copyTo(output);
+	//return output;
+	//*/
+}
+
 int main(int argc, char **argv)
 {
   // Parse command line options.
@@ -68,6 +93,7 @@ int main(int argc, char **argv)
   namedWindow("depth");
   namedWindow("color");
   namedWindow("users");
+  namedWindow("custom");
 
   // quick img saving
   grabber.waitForNextFrame();
@@ -92,13 +118,33 @@ int main(int argc, char **argv)
 	cv::Mat3b debug_color_img;
 	image.mappedRgb().copyTo(debug_color_img);
 
-	// Setup user-custom image
+	// Setup users image
+	//(this appears to be the built-in person detection in nite_rgbd_grabber.cpp)
 	cv::Mat3b debug_users;
     image.fillRgbFromUserLabels(debug_users);
 
+	// Setup custom image
+	// We'll use this for our DoF processing =]
+	//cv::Mat3b custom_img = customProcessing(image.mappedRgb(), image.depth());
+	cv::Mat3b custom_img;
+	//debug_color_img.copySize(custom_img);
+	custom_img = cvCreateMat(debug_color_img.rows, debug_color_img.cols, debug_color_img.type());
+	//custom_img = customProcessing(image.mappedRgb(), image.depth());
+	
+	// CODE FOR CUSTOM_IMG
+	int w = custom_img.cols;
+	int h = custom_img.rows;
+	for(int i=0; i<h; i++){
+		for(int j=0; j<w; j++){
+			custom_img(i,j) = Vec3b(0,0,255);	// colors are BGR
+		}
+	}
+
+	// Show images =]
     imshow("depth", debug_depth_img);
     imshow("color", debug_color_img);
     imshow("users", debug_users);
+	imshow("custom", custom_img);
     cv::waitKey(10);
   }
 
