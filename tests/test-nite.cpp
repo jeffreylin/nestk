@@ -34,29 +34,31 @@ namespace opt
   ntk::arg<bool> high_resolution("--highres", "High resolution color image.", 0);
 }
 
-cv::Mat3b customProcessing(cv::Mat3b color, cv::Mat3b depthRaw)
+
+
+cv::Mat3b customProcessing(cv::Mat3b color, cv::Mat1f depthRaw)
 // color is the color image
 // depthRaw is the pre-aligned raw depth data (values are from 0-1023 i think)
 // output is the output image that this function should populate
 // color and depthRaw should be READ-ONLY, please don't mess them up? =]
 // feel free to write to output all you want though =]
 {
-	//const Size IMG_SIZE = color.size();
-	//const int IMG_DEPTH = color.depth();
-	//const int IMG_CHANNELS = color.channels();
+	// init output matrix
+	cv::Mat3b output = cvCreateMat(color.rows, color.cols, color.type());
 
+	// CODE FOR CUSTOM_IMG OUTPUT
+	int w = output.cols;
+	int h = output.rows;
+	for(int i=0; i<h; i++){
+		for(int j=0; j<w; j++){
+			output(i,j) = Vec3b(0,0,255);	// colors are BGR
+		}
+	}
 
-	return cvCreateMat(color.rows, color.cols, color.type());
-	/*
-	cv::Mat3b output;
-	color.copyTo(output);
+	// remember that gaussian kernels need to be odd dimesions ex: Size(11,11)
+	//cv::GaussianBlur(color, output, Size(11,11), 0);
+	
 	return output;
-	//cv::Mat3b output = cvCreateImage( IMG_SIZE, IMG_DEPTH, IMG_CHANNELS );
-	//cvZero(output);
-	//cv::Mat3b output;
-	//color.copyTo(output);
-	//return output;
-	//*/
 }
 
 int main(int argc, char **argv)
@@ -125,20 +127,7 @@ int main(int argc, char **argv)
 
 	// Setup custom image
 	// We'll use this for our DoF processing =]
-	//cv::Mat3b custom_img = customProcessing(image.mappedRgb(), image.depth());
-	cv::Mat3b custom_img;
-	//debug_color_img.copySize(custom_img);
-	custom_img = cvCreateMat(debug_color_img.rows, debug_color_img.cols, debug_color_img.type());
-	//custom_img = customProcessing(image.mappedRgb(), image.depth());
-	
-	// CODE FOR CUSTOM_IMG
-	int w = custom_img.cols;
-	int h = custom_img.rows;
-	for(int i=0; i<h; i++){
-		for(int j=0; j<w; j++){
-			custom_img(i,j) = Vec3b(0,0,255);	// colors are BGR
-		}
-	}
+	cv::Mat3b custom_img = customProcessing(debug_color_img, image.depth());
 
 	// Show images =]
     imshow("depth", debug_depth_img);
