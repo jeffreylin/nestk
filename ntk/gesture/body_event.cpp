@@ -172,10 +172,10 @@ void BodyEventDetector :: initialize(xn::Context& context, xn::DepthGenerator& d
   m_session_manager->AddListener(m_wave_detector);
 
   m_steady_detector = new XnVSteadyDetector;
-  m_steady_detector->RegisterSteady(this, &BodyEventDetectorSteady_Steady);
+  //m_steady_detector->RegisterSteady(this, &BodyEventDetectorSteady_Steady);	//LALALALA EVERYTHING IS FINE, I SWEARS!
   // FIXME: this should be accessible from Lua.
   m_steady_detector->SetDetectionDuration(1000);
-  m_steady_detector->SetMaximumVelocity(0.005);
+  //m_steady_detector->SetMaximumVelocity(0.005);	//LALALALA EVERYTHING IS FINE, I SWEARS!
   m_session_manager->AddListener(m_steady_detector);
 
   m_circle_detector = new XnVCircleDetector;

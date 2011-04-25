@@ -27,9 +27,9 @@
 #include <cstring>
 
 namespace ntk {
-  QTextStream qOut (stdout);
-  QTextStream qErr (stderr);
-  QTextStream qIn (stdin);
+  //QTextStream qOut (stdout);
+  //QTextStream qErr (stderr);
+  //QTextStream qIn (stdin);
 }
 
 QTextStream& operator>>(QTextStream& input, bool& b)

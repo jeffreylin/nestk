@@ -92,13 +92,13 @@ int main(int argc, char **argv)
   QDir::setCurrent(QApplication::applicationDirPath());
 
   // Prepare body event listeners.
-  MyBodyListener body_event_listener;
-  BodyEventDetector detector;
-  detector.addListener(&body_event_listener);
+  ///MyBodyListener body_event_listener;
+  ///BodyEventDetector detector;
+  ///detector.addListener(&body_event_listener);
 
   // Declare the frame grabber.
   NiteRGBDGrabber grabber;
-  grabber.setBodyEventDetector(&detector);
+  ///grabber.setBodyEventDetector(&detector);
 
   // High resolution 1280x1024 RGB Image.
   if (opt::high_resolution())
@@ -112,34 +112,65 @@ int main(int argc, char **argv)
   RGBDImage image;
 
   // Image post processor. Compute mappings when RGB resolution is 1280x1024.
-  NiteProcessor post_processor;
+  ///NiteProcessor post_processor;
 
   namedWindow("depth");
   namedWindow("color");
   namedWindow("users");
 
+  // quick img saving
+  grabber.waitForNextFrame();
+  grabber.copyImageTo(image);
+  ///post_processor.processImage(image);
+  cv::Mat1b debug_depth_img = normalize_toMat1b(image.depth());
+  cv::Mat3b debug_color_img;
+  image.mappedRgb().copyTo(debug_color_img);
+  //cv::imwrite("color.png", debug_color_img);
+  //cv::imwrite("depth.png", debug_depth_img);
+  printf("asdf");
+
   while (true)
   {
+	grabber.waitForNextFrame();
+	grabber.copyImageTo(image);
+
+	// Setup depth image
+	cv::Mat1b debug_depth_img = normalize_toMat1b(image.depth());
+
+	// Setup color image
+	cv::Mat3b debug_color_img;
+	image.mappedRgb().copyTo(debug_color_img);
+
+	// Setup user-custom image
+	cv::Mat3b debug_users;
+    image.fillRgbFromUserLabels(debug_users);
+
+    imshow("depth", debug_depth_img);
+    imshow("color", debug_color_img);
+    imshow("users", debug_users);
+    cv::waitKey(10);
+  }
+/*
     // Wait for a new frame, get a local copy and postprocess it.
     grabber.waitForNextFrame();
     grabber.copyImageTo(image);
     post_processor.processImage(image);
 
     // Get the last hand point position.
-    cv::Point3f handpoint = body_event_listener.getLastHandPosInImage();
+    ///cv::Point3f handpoint = body_event_listener.getLastHandPosInImage();
 
     // Prepare the depth view, with skeleton and handpoint.
     cv::Mat1b debug_depth_img = normalize_toMat1b(image.depth());
     if (image.skeleton())
       image.skeleton()->drawOnImage(debug_depth_img);
-    circle(debug_depth_img, Point(handpoint.x, handpoint.y), 5, Scalar(0, 255, 255));
+    ///circle(debug_depth_img, Point(handpoint.x, handpoint.y), 5, Scalar(0, 255, 255));
 
     // Prepare the color view, with skeleton and handpoint.
     cv::Mat3b debug_color_img;
     image.mappedRgb().copyTo(debug_color_img);
     if (image.skeleton())
       image.skeleton()->drawOnImage(debug_color_img);
-    circle(debug_color_img, Point(handpoint.x, handpoint.y), 5, Scalar(0, 255, 255));
+    ///circle(debug_color_img, Point(handpoint.x, handpoint.y), 5, Scalar(0, 255, 255));
 
     // Prepare the user mask view as colors.
     cv::Mat3b debug_users;
@@ -150,6 +181,7 @@ int main(int argc, char **argv)
     imshow("users", debug_users);
     cv::waitKey(10);
   }
+*/
 
   return app.exec();
 }
