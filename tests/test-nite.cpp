@@ -106,6 +106,7 @@ int main(int argc, char **argv)
     grabber.setHighRgbResolution(true);
 
   // Start the grabber.
+  grabber.setBodyEventDetector(false);
   grabber.initialize();
   grabber.start();
 
@@ -145,8 +146,8 @@ int main(int argc, char **argv)
 
 	// Setup users image
 	//(this appears to be the built-in person detection in nite_rgbd_grabber.cpp)
-	cv::Mat3b debug_users;
-    image.fillRgbFromUserLabels(debug_users);
+	//cv::Mat3b debug_users;
+    //image.fillRgbFromUserLabels(debug_users);
 
 	// Setup custom image
 	// We'll use this for our DoF processing =]
@@ -158,7 +159,7 @@ int main(int argc, char **argv)
 	// Show images =]
     imshow("depth", debug_depth_img);
     imshow("color", debug_color_img);
-    imshow("users", debug_users);
+    //imshow("users", debug_users);
 	imshow("custom", custom_img);
     cv::waitKey(10);
   }
