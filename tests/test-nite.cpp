@@ -34,7 +34,24 @@ namespace opt
   ntk::arg<bool> high_resolution("--highres", "High resolution color image.", 0);
 }
 
-
+void findMinAndMax(cv::Mat1f arr){
+	int w = arr.cols;
+	int h = arr.rows;
+	float depth_min = 2048.0;	// v. bad i know - too lazy to look up int class
+	float depth_max = -2048.0;
+	for(int i=0; i<h; i++){
+		for(int j=0; j<w; j++){
+			float val = arr(i,j);	//does this work?	//yep =]
+			//^ are these in meters =D? - seems like it
+			//the measuring tape agrees!
+			if(val<depth_min){depth_min=val;}
+			if(depth_max<val){depth_max=val;}
+		}
+	}
+	printf("min = %f ", depth_min);
+	printf("max = %f", depth_max);
+	printf("\n");
+}
 
 cv::Mat3b customProcessing(cv::Mat3b color, cv::Mat1f depthRaw)
 // color is the color image
@@ -128,6 +145,8 @@ int main(int argc, char **argv)
 	// Setup custom image
 	// We'll use this for our DoF processing =]
 	cv::Mat3b custom_img = customProcessing(debug_color_img, image.depth());
+
+	//findMinAndMax(image.depth());
 
 	// Show images =]
     imshow("depth", debug_depth_img);
