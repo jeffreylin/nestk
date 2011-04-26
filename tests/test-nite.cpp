@@ -17,14 +17,17 @@
  * Author: Nicolas Burrus <nicolas.burrus@uc3m.es>, (C) 2010
  */
 
+// ORIGINAL INCLUDES
 #include <ntk/ntk.h>
 #include <ntk/utils/debug.h>
 #include <ntk/camera/nite_rgbd_grabber.h>
-#include <ntk/gesture/body_event.h>
 
 #include <QApplication>
 #include <QDir>
 #include <QMutex>
+
+// CUSTOM INCLUES
+#include <set>
 
 using namespace cv;
 using namespace ntk;
@@ -34,11 +37,12 @@ namespace opt
   ntk::arg<bool> high_resolution("--highres", "High resolution color image.", 0);
 }
 
-void findMinAndMax(cv::Mat1f arr){
+void findMinAndMaxAndNumberOfUniques(cv::Mat1f arr){
 	int w = arr.cols;
 	int h = arr.rows;
 	float depth_min = 2048.0;	// v. bad i know - too lazy to look up int class
 	float depth_max = -2048.0;
+	std::set<float> uniqueFloats;
 	for(int i=0; i<h; i++){
 		for(int j=0; j<w; j++){
 			float val = arr(i,j);	//does this work?	//yep =]
@@ -46,10 +50,12 @@ void findMinAndMax(cv::Mat1f arr){
 			//the measuring tape agrees!
 			if(val<depth_min){depth_min=val;}
 			if(depth_max<val){depth_max=val;}
+			uniqueFloats.insert(val);
 		}
 	}
 	printf("min = %f ", depth_min);
-	printf("max = %f", depth_max);
+	printf("max = %f ", depth_max);
+	printf("uniques = %i ", uniqueFloats.size());
 	printf("\n");
 }
 
@@ -146,7 +152,8 @@ int main(int argc, char **argv)
 	// We'll use this for our DoF processing =]
 	cv::Mat3b custom_img = customProcessing(debug_color_img, image.depth());
 
-	//findMinAndMax(image.depth());
+	// DEBUGGING / EXPERIMENTATION
+	findMinAndMaxAndNumberOfUniques(image.depth());
 
 	// Show images =]
     imshow("depth", debug_depth_img);
