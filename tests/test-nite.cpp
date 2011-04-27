@@ -59,6 +59,19 @@ void findMinAndMaxAndNumberOfUniques(cv::Mat1f arr){
 	printf("\n");
 }
 
+float film35MMToScreen(float in){
+	// OUTPUT IMAGE PROPERTIES
+	float HORIZONTAL_PIXELS = 640;	//in pixels
+
+	// FILM PROPERTIES (35mm film)
+	// ^kinda sorta, because 35mm film is 3:2, but kinect images are 4:3
+	float FILM_WIDTH = 0.036;	//in meters
+
+	return in * (HORIZONTAL_PIXELS/FILM_WIDTH);
+}
+
+// DEPRECATED
+/*
 float metersToPixels(float m){
 	// SCREEN PROPERTIES
 	float SCREEN_DIAGONAL = 12.1;	//in inches
@@ -75,6 +88,7 @@ float metersToPixels(float m){
 	float diagonalInMeters = SCREEN_DIAGONAL / INCHES_IN_A_METER;
 	return m * (diagonalInPixels/diagonalInMeters);
 }
+*/
 
 // try f = 0.035m, n = 1.4
 float getCircleOfConfusion(float focalLength, float fStop, float focusedDistance, float subjectDistance){
@@ -94,9 +108,15 @@ cv::Mat3b* previousImg;
 std::map<int, cv::Mat3b> renderedGaussians;
 
 cv::Mat3b memoizedGaussian(cv::Mat3b color, int blur){
-	printf("values in cache: %i ", (int) renderedGaussians.size());
-	printf("blurring %i", blur);
-	printf("\n");
+
+	// CHECK FOR EASY CASES
+	if(blur==1){return color;}
+	if(blur>color.cols){blur=roundToNearestOdd(color.cols);}
+
+	// GO
+	//printf("values in cache: %i ", (int) renderedGaussians.size());
+	//printf("blurring %i", blur);
+	//printf("\n");
 	if(&color != previousImg){
 		printf("color %i not equal to previousImg %i", &color, previousImg);
 		renderedGaussians.clear();
@@ -108,7 +128,7 @@ cv::Mat3b memoizedGaussian(cv::Mat3b color, int blur){
 		return possibleMatch->second;
 	}
 	else{	// element is not found
-		//printf("cache miss for %i \n", blur);
+		printf("cache miss for %i \n", blur);
 		cv::Mat3b blurred = cvCreateMat(color.rows, color.cols, color.type());
 		cv::GaussianBlur(color, blurred, cv::Size(blur,blur), 0);
 		renderedGaussians[blur] = blurred;
@@ -128,9 +148,11 @@ cv::Mat3b customProcessing(cv::Mat3b color, cv::Mat1f depthRaw)
 
 	// CODE FOR CUSTOM_IMG OUTPUT
 		//SETUP
-	cv::Mat3b blurred = cvCreateMat(color.rows, color.cols, color.type());
-	cv::GaussianBlur(color, blurred, cv::Size(17,17), 0);
-	float focalDistance = 2.0;	// in meters
+	// CAMERA PROPERTIES
+	float FOCAL_LENGTH = 0.035;	// in meters
+	float FSTOP = 1.4;			// absolute units
+	float FOCAL_DISTANCE = 2.0;	// in meters
+	printf("Blurring using %.3fmm lens at f%.3f focused at %.3f meters\n", FOCAL_LENGTH, FSTOP, FOCAL_DISTANCE);
 
 		// MAIN LOOP
 	int w = output.cols;
@@ -152,13 +174,9 @@ cv::Mat3b customProcessing(cv::Mat3b color, cv::Mat1f depthRaw)
 
 			// DoF Equation
 			float pixelsToBlur = 
-				roundToNearestOdd(metersToPixels(getCircleOfConfusion(
-						0.035, 1.4, focalDistance, d
+				roundToNearestOdd(film35MMToScreen(getCircleOfConfusion(
+					FOCAL_LENGTH, FSTOP, FOCAL_DISTANCE, d
 				)));
-			if(pixelsToBlur == 1){
-				output(i,j) = blurred(i,j);
-				continue;
-			}
 			cv::Mat3b blurred = memoizedGaussian(
 				color, pixelsToBlur
 			);
@@ -232,6 +250,7 @@ int main(int argc, char **argv)
 	// Setup custom image
 	// We'll use this for our DoF processing =]
 	cv::Mat3b custom_img = customProcessing(debug_color_img, raw_depth_img);
+	renderedGaussians.clear();
 
 	// DEBUGGING / EXPERIMENTATION
 	findMinAndMaxAndNumberOfUniques(raw_depth_img);
