@@ -59,6 +59,63 @@ void findMinAndMaxAndNumberOfUniques(cv::Mat1f arr){
 	printf("\n");
 }
 
+float metersToPixels(float m){
+	// SCREEN PROPERTIES
+	float SCREEN_DIAGONAL = 12.1;	//in inches
+	float HORIZONTAL_PIXELS = 1280;	//in pixels
+	float VERTICAL_PIXELS = 800;	//in pixels
+	
+	// CONSTANTS
+	float INCHES_IN_A_METER = 39.3700787;	//in inches/meter
+
+	float diagonalInPixels = 
+		HORIZONTAL_PIXELS / cos( 
+			atan( VERTICAL_PIXELS / HORIZONTAL_PIXELS )
+		);
+	float diagonalInMeters = SCREEN_DIAGONAL / INCHES_IN_A_METER;
+	return m * (diagonalInPixels/diagonalInMeters);
+}
+
+// try f = 0.035m, n = 1.4
+float getCircleOfConfusion(float focalLength, float fStop, float focusedDistance, float subjectDistance){
+	// via http://en.wikipedia.org/wiki/Circle_of_confusion
+	float f = focalLength;	// in meters
+	float n = fStop;		// in meters
+	float s_1 = focusedDistance;	// in meters
+	float s_2 = subjectDistance;	// in meters
+	return (abs(s_2-s_1)/s_2) * (f*f/(n*(s_1-f)));	// in meters
+}
+
+int roundToNearestOdd(float in){
+	return int(in/2)*2+1;
+}
+
+cv::Mat3b* previousImg;
+std::map<int, cv::Mat3b> renderedGaussians;
+
+cv::Mat3b memoizedGaussian(cv::Mat3b color, int blur){
+	printf("values in cache: %i ", (int) renderedGaussians.size());
+	printf("blurring %i", blur);
+	printf("\n");
+	if(&color != previousImg){
+		printf("color %i not equal to previousImg %i", &color, previousImg);
+		renderedGaussians.clear();
+		previousImg = &color;
+	}
+	std::map<int, cv::Mat3b>::iterator possibleMatch = renderedGaussians.find(blur);
+	if(possibleMatch != renderedGaussians.end()){	// element found
+		//printf("cache hit for %i \n", blur);
+		return possibleMatch->second;
+	}
+	else{	// element is not found
+		//printf("cache miss for %i \n", blur);
+		cv::Mat3b blurred = cvCreateMat(color.rows, color.cols, color.type());
+		cv::GaussianBlur(color, blurred, cv::Size(blur,blur), 0);
+		renderedGaussians[blur] = blurred;
+		return blurred;
+	}
+}
+
 cv::Mat3b customProcessing(cv::Mat3b color, cv::Mat1f depthRaw)
 // color is the color image
 // depthRaw is the pre-aligned raw depth data (values are from 0-1023 i think)
@@ -70,11 +127,42 @@ cv::Mat3b customProcessing(cv::Mat3b color, cv::Mat1f depthRaw)
 	cv::Mat3b output = cvCreateMat(color.rows, color.cols, color.type());
 
 	// CODE FOR CUSTOM_IMG OUTPUT
+		//SETUP
+	cv::Mat3b blurred = cvCreateMat(color.rows, color.cols, color.type());
+	cv::GaussianBlur(color, blurred, cv::Size(17,17), 0);
+	float focalDistance = 2.0;	// in meters
+
+		// MAIN LOOP
 	int w = output.cols;
 	int h = output.rows;
 	for(int i=0; i<h; i++){
 		for(int j=0; j<w; j++){
+			float d = depthRaw(i,j);
+
+			/*
 			output(i,j) = Vec3b(0,0,255);	// colors are BGR
+			*/
+
+			/*
+			// hard cut off function
+			float depthOfField = 0.25;	// in meters
+			output(i,j) = (abs(d-focalDistance)<(depthOfField/2.0)) ? 
+				color(i,j) : blurred(i,j);
+			*/
+
+			// DoF Equation
+			float pixelsToBlur = 
+				roundToNearestOdd(metersToPixels(getCircleOfConfusion(
+						0.035, 1.4, focalDistance, d
+				)));
+			if(pixelsToBlur == 1){
+				output(i,j) = blurred(i,j);
+				continue;
+			}
+			cv::Mat3b blurred = memoizedGaussian(
+				color, pixelsToBlur
+			);
+			output(i,j) = blurred(i,j);
 		}
 	}
 
@@ -105,12 +193,11 @@ int main(int argc, char **argv)
   if (opt::high_resolution())
     grabber.setHighRgbResolution(true);
 
-  // Start the grabber.
-  grabber.setBodyEventDetector(false);
+  // Start the grabber
+  //grabber.setMaxUsers(0);
+  //grabber.setBodyEventDetector(false);
   grabber.initialize();
-  grabber.setBodyEventDetector(false);
   grabber.start();
-  grabber.setBodyEventDetector(false);
 
   // Holder for the current image.
   RGBDImage image;
@@ -123,28 +210,19 @@ int main(int argc, char **argv)
   namedWindow("users");
   namedWindow("custom");
 
-  // quick img saving
-  grabber.waitForNextFrame();
-  grabber.copyImageTo(image);
-  ///post_processor.processImage(image);
-  cv::Mat1b debug_depth_img = normalize_toMat1b(image.depth());
-  cv::Mat3b debug_color_img;
-  image.mappedRgb().copyTo(debug_color_img);
-  //cv::imwrite("color.png", debug_color_img);
-  //cv::imwrite("depth.png", debug_depth_img);
-  printf("asdf");
-
   while (true)
   {
 	grabber.waitForNextFrame();
 	grabber.copyImageTo(image);
 
-	// Setup depth image
-	cv::Mat1b debug_depth_img = normalize_toMat1b(image.depth());
-
 	// Setup color image
 	cv::Mat3b debug_color_img;
 	image.mappedRgb().copyTo(debug_color_img);
+
+	// Setup depth image
+	cv::Mat1b raw_depth_img;
+	image.depth().copyTo(raw_depth_img);
+	cv::Mat1b debug_depth_img = normalize_toMat1b(raw_depth_img);
 
 	// Setup users image
 	//(this appears to be the built-in person detection in nite_rgbd_grabber.cpp)
@@ -153,17 +231,22 @@ int main(int argc, char **argv)
 
 	// Setup custom image
 	// We'll use this for our DoF processing =]
-	cv::Mat3b custom_img = customProcessing(debug_color_img, image.depth());
+	cv::Mat3b custom_img = customProcessing(debug_color_img, raw_depth_img);
 
 	// DEBUGGING / EXPERIMENTATION
-	findMinAndMaxAndNumberOfUniques(image.depth());
+	findMinAndMaxAndNumberOfUniques(raw_depth_img);
 
 	// Show images =]
     imshow("depth", debug_depth_img);
     imshow("color", debug_color_img);
     imshow("users", debug_users);
 	imshow("custom", custom_img);
-    cv::waitKey(10);
+    if(cv::waitKey(10)==' '){
+		cv::imwrite("color.tif", debug_color_img);
+		cv::imwrite("depth.tif", raw_depth_img);
+		cv::imwrite("custom.tif", custom_img);
+		printf("Images Saved \n");
+	}
   }
 
   return app.exec();
