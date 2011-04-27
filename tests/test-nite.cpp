@@ -37,6 +37,21 @@ namespace opt
   ntk::arg<bool> high_resolution("--highres", "High resolution color image.", 0);
 }
 
+int focalPointX = 320;
+int focalPointY = 240;
+bool updateFocalPoint = false;
+
+void customWindowMouseCallback(int event, int x, int y, int flags, void* param){
+	switch(event){
+		case CV_EVENT_LBUTTONUP:
+			focalPointX = x;
+			focalPointY = y;
+			updateFocalPoint = true;	// wow, super lame handling... x.x
+			printf("Setting focal point to: (%i, %i)", x, y);
+			break;
+	}
+}
+
 void findMinAndMaxAndNumberOfUniques(cv::Mat1f arr){
 	int w = arr.cols;
 	int h = arr.rows;
@@ -136,6 +151,7 @@ cv::Mat3b memoizedGaussian(cv::Mat3b color, int blur){
 	}
 }
 
+float focalDistance = 2;	// in meters
 cv::Mat3b customProcessing(cv::Mat3b color, cv::Mat1f depthRaw)
 // color is the color image
 // depthRaw is the pre-aligned raw depth data (values are from 0-1023 i think)
@@ -151,8 +167,9 @@ cv::Mat3b customProcessing(cv::Mat3b color, cv::Mat1f depthRaw)
 	// CAMERA PROPERTIES
 	float FOCAL_LENGTH = 0.035;	// in meters
 	float FSTOP = 1.4;			// absolute units
-	float FOCAL_DISTANCE = 2.0;	// in meters
-	printf("Blurring using %.3fmm lens at f%.3f focused at %.3f meters\n", FOCAL_LENGTH, FSTOP, FOCAL_DISTANCE);
+	if(updateFocalPoint){focalDistance=depthRaw(focalPointY,focalPointX);updateFocalPoint=false;}
+	//^NOTE: this "backwards" accessor order is correct
+	printf("Blurring using %.3fmm lens at f%.3f focused at %.3f meters\n", FOCAL_LENGTH, FSTOP, focalDistance);
 
 		// MAIN LOOP
 	int w = output.cols;
@@ -175,7 +192,7 @@ cv::Mat3b customProcessing(cv::Mat3b color, cv::Mat1f depthRaw)
 			// DoF Equation
 			float pixelsToBlur = 
 				roundToNearestOdd(film35MMToScreen(getCircleOfConfusion(
-					FOCAL_LENGTH, FSTOP, FOCAL_DISTANCE, d
+					FOCAL_LENGTH, FSTOP, focalDistance, d
 				)));
 			cv::Mat3b blurred = memoizedGaussian(
 				color, pixelsToBlur
@@ -227,6 +244,10 @@ int main(int argc, char **argv)
   namedWindow("color");
   namedWindow("users");
   namedWindow("custom");
+  cvSetMouseCallback("depth", customWindowMouseCallback);
+  cvSetMouseCallback("color", customWindowMouseCallback);
+  cvSetMouseCallback("users", customWindowMouseCallback);
+  cvSetMouseCallback("custom", customWindowMouseCallback);
 
   while (true)
   {
