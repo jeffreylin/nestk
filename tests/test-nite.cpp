@@ -28,6 +28,8 @@
 
 // CUSTOM INCLUES
 #include <set>
+#include <Winbase.h>
+#include <Windows.h>
 
 using namespace cv;
 using namespace ntk;
@@ -123,7 +125,6 @@ cv::Mat3b* previousImg;
 std::map<int, cv::Mat3b> renderedGaussians;
 
 cv::Mat3b memoizedGaussian(cv::Mat3b color, int blur){
-
 	// CHECK FOR EASY CASES
 	if(blur==1){return color;}
 	if(blur>color.cols){blur=roundToNearestOdd(color.cols);}
@@ -132,11 +133,13 @@ cv::Mat3b memoizedGaussian(cv::Mat3b color, int blur){
 	//printf("values in cache: %i ", (int) renderedGaussians.size());
 	//printf("blurring %i", blur);
 	//printf("\n");
+	/*	this is now done in the main loop - arggg gross... x.x
 	if(&color != previousImg){
 		printf("color %i not equal to previousImg %i", &color, previousImg);
 		renderedGaussians.clear();
 		previousImg = &color;
 	}
+	*/
 	std::map<int, cv::Mat3b>::iterator possibleMatch = renderedGaussians.find(blur);
 	if(possibleMatch != renderedGaussians.end()){	// element found
 		//printf("cache hit for %i \n", blur);
@@ -245,35 +248,41 @@ int main(int argc, char **argv)
   cvSetMouseCallback("depth", customWindowMouseCallback);
   cvSetMouseCallback("color", customWindowMouseCallback);
   cvSetMouseCallback("custom", customWindowMouseCallback);
-
+  
+  int start,end;
+  int customStart, customEnd;
   while (true)
   {
+	start = GetTickCount();
 	grabber.waitForNextFrame();
-	grabber.copyImageTo(image);
+	grabber.copyImageTo(image);	//takes (by GetTickCount) between 0-16ms
 
 	// Setup color image
 	cv::Mat3b debug_color_img;
 	image.mappedRgb().copyTo(debug_color_img);
-	//cv::Mat3b debug_color_img = image.mappedRgb();	//this doesn't work
 
 	// Setup depth image
 	cv::Mat1b raw_depth_img;
 	image.depth().copyTo(raw_depth_img);
-	//cv::Mat3b raw_depth_img = image.depth();	//this doesn't work
-	cv::Mat1b debug_depth_img = normalize_toMat1b(raw_depth_img);
+	cv::Mat1b debug_depth_img = ;
 
+	customStart = GetTickCount();
 	// Setup custom image
 	// We'll use this for our DoF processing =]
 	cv::Mat3b custom_img = customProcessing(debug_color_img, raw_depth_img);
 	renderedGaussians.clear();	//meh, this shouldn't be done here... =/
+	printf("custom rendered in ~%ims ", GetTickCount()-customStart);
 
 	// DEBUGGING / EXPERIMENTATION
 	//findMinAndMaxAndNumberOfUniques(raw_depth_img);
 
 	// Show images =]
-    imshow("depth", debug_depth_img);
+    imshow("depth", normalize_toMat1b(raw_depth_img));
     imshow("color", debug_color_img);
 	imshow("custom", custom_img);
+	end = GetTickCount();
+	printf("all images rendered in ~%ims ", end-start);
+	printf("\n");
     if(cv::waitKey(2)==' '){
 		cv::imwrite("color.tif", debug_color_img);
 		cv::imwrite("depth.tif", raw_depth_img);
