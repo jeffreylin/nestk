@@ -229,8 +229,7 @@ int main(int argc, char **argv)
     grabber.setHighRgbResolution(true);
 
   // Start the grabber
-  //grabber.setMaxUsers(0);
-  //grabber.setBodyEventDetector(false);
+  grabber.setBodyEventDetector(false);	//modded nite_rgbd_grabber to gt this to work x.x
   grabber.initialize();
   grabber.start();
 
@@ -242,11 +241,9 @@ int main(int argc, char **argv)
 
   namedWindow("depth");
   namedWindow("color");
-  namedWindow("users");
   namedWindow("custom");
   cvSetMouseCallback("depth", customWindowMouseCallback);
   cvSetMouseCallback("color", customWindowMouseCallback);
-  cvSetMouseCallback("users", customWindowMouseCallback);
   cvSetMouseCallback("custom", customWindowMouseCallback);
 
   while (true)
@@ -257,31 +254,27 @@ int main(int argc, char **argv)
 	// Setup color image
 	cv::Mat3b debug_color_img;
 	image.mappedRgb().copyTo(debug_color_img);
+	//cv::Mat3b debug_color_img = image.mappedRgb();	//this doesn't work
 
 	// Setup depth image
 	cv::Mat1b raw_depth_img;
 	image.depth().copyTo(raw_depth_img);
+	//cv::Mat3b raw_depth_img = image.depth();	//this doesn't work
 	cv::Mat1b debug_depth_img = normalize_toMat1b(raw_depth_img);
-
-	// Setup users image
-	//(this appears to be the built-in person detection in nite_rgbd_grabber.cpp)
-	cv::Mat3b debug_users;
-    image.fillRgbFromUserLabels(debug_users);
 
 	// Setup custom image
 	// We'll use this for our DoF processing =]
 	cv::Mat3b custom_img = customProcessing(debug_color_img, raw_depth_img);
-	renderedGaussians.clear();
+	renderedGaussians.clear();	//meh, this shouldn't be done here... =/
 
 	// DEBUGGING / EXPERIMENTATION
-	findMinAndMaxAndNumberOfUniques(raw_depth_img);
+	//findMinAndMaxAndNumberOfUniques(raw_depth_img);
 
 	// Show images =]
     imshow("depth", debug_depth_img);
     imshow("color", debug_color_img);
-    imshow("users", debug_users);
 	imshow("custom", custom_img);
-    if(cv::waitKey(10)==' '){
+    if(cv::waitKey(2)==' '){
 		cv::imwrite("color.tif", debug_color_img);
 		cv::imwrite("depth.tif", raw_depth_img);
 		cv::imwrite("custom.tif", custom_img);
