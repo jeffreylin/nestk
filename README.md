@@ -82,18 +82,18 @@ My demo is just a modified version of test-nite.exe. Make sure you copied the co
 
 ## Demo Images / Video
 ### Images
-#### Color
-![](http://www.code.fromjeffrey.com/cs182a/asgt4/img/color.jpg)
-#### Depth
-<img src='http://code.fromjeffrey.com/cs182a/asgt4/img/depth.jpg' />
-#### Alignment (Overlaid in Photoshop)
-<img src='http://code.fromjeffrey.com/cs182a/asgt4/img/overlay.jpg' />
+#### Kinect Color Image
+![Kinect Color Image](http://www.code.fromjeffrey.com/cs182a/asgt4/img/color.jpg)
+#### Kinect Depth Image
+![Kinect Depth Image](http://www.code.fromjeffrey.com/cs182a/asgt4/img/depth.jpg)
+#### Alignment of Kinect Depth Image and Edges Overlaid on Kinect Color Image
+![Kinect Depth Image and Edges Overlaid on Color Image](http://www.code.fromjeffrey.com/cs182a/asgt4/img/overlay.jpg)
 #### Rendered DoF Focused at 0.806m (Me)
-<img src='http://code.fromjeffrey.com/cs182a/asgt4/img/custom-0.806m.jpg' />
+![Rendered DoF Focused at 0.806m](http://www.code.fromjeffrey.com/cs182a/asgt4/img/custom-0.806m.jpg)
 #### Rendered DoF Focused at 1.958m (Bed)
-<img src='http://code.fromjeffrey.com/cs182a/asgt4/img/custom-1.958m.jpg' />
-#### Rednered DoF Focused at 3.046m (Wall Poster)
-<img src='http://code.fromjeffrey.com/cs182a/asgt4/img/custom-3.046m.jpg' />
+![Rendered DoF Focused at 1.958m](http://www.code.fromjeffrey.com/cs182a/asgt4/img/custom-1.958m.jpg)
+#### Rendered DoF Focused at 3.046m (Wall Poster)
+![Rendered DoF Focused at 3.046m](http://www.code.fromjeffrey.com/cs182a/asgt4/img/custom-3.046m.jpg)
 ### Video
  * [[Demo Video]](http://www.cs.hmc.edu/research/robotics/mediaSpr2011/jeff.mov)
 
