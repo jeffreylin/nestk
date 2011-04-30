@@ -5,12 +5,8 @@ This isn't really an extension of nburrus' nestk library - I forked so that I co
 
 Happy hacking! =]
 
------
-
 ## What does this do?
 This code uses the Microsoft Kinect to render real life images with arbitrary [depth of field](http://en.wikipedia.org/wiki/Depth_of_field) settings. In other words - it does that [pretty thing](http://en.wikipedia.org/wiki/File:Shallow_Depth_of_Field_with_Bokeh.jpg) that big fancy cameras (technically lenses) do by keeping things in focus sharp and blurring things out of focus.
-
------
 
 ## Code
 
@@ -57,19 +53,14 @@ You'll also need a nestk /config folder in the same directory as your binary. Yo
 #### Running the compiled code
 My demo is just a modified version of test-nite.exe. Make sure you copied the config/ folder to the same directory as the binary and run test-nite.exe.
 
------
-
 ## How it works
-
------
+LOREM IPSUM
 
 ## Future Features / To-Do
  * Solve the depth image occlusion issue. Some parts of the depth image don't have depth values because they are shadowed/blocked by things in front of them. Implement intelligent depth image hole filling by partitioning holes with color image edges and then filling in edges with the appropriate depth.
  * More realistic depth of field by ordering blur pixels. See the "Edge Cases" section of [Real-Time Depth of Field Rendering in Starcraft II](http://developer.amd.com/documentation/presentations/legacy/Chapter05-Filion-StarCraftII.pdf) on p155 and Figure 15 on p156. We'll have to change rendering from using Gaussian blur to individual kernel convolutions in this case (or probably just pixel-by-pixel averaging).
  * Faster bluring - currently the code runs at ~0.9fps (takes about 1100ms to render a frame on a Lenovo x200 2.4ghz c2d, Intel GMA 4500MHD). Ideally this would be 15/30fps or 33/66ms a frame (AKA, wtb x30 speedup =]).
  * Use the higher res 1280x960 15fps color capture mode on the Kinect.
-
------
 
 ## More Resources
 
@@ -82,8 +73,6 @@ My demo is just a modified version of test-nite.exe. Make sure you copied the co
 ### Nestk Links
  * [Kinect Calibration Theory](http://nicolas.burrus.name/index.php/Research/KinectCalibration)
  * [Kinect RGB Demo v0.5.0 docs](http://nicolas.burrus.name/index.php/Research/KinectRgbDemoV5)
-
------
 
 ## Acknowledgements
 
