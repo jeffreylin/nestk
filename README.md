@@ -43,7 +43,7 @@ Nestk uses [CMake](http://www.cmake.org/cmake/resources/software.html) to config
  * Make sure NESTK\_BUILD\_TESTS is checked.
  * Make sure NESTK\_USE\_OPENNI is checked.
  * I used NESTK\_USE\_EXTERNAL\_OPENCV because I already had OpenCV 2.2 installed.
- * Make sure NITE\_INCLUDE\_DIR and NITE\_LIBRARY\_DIR as well as the OPENNI\_INCLUDE\_DIR and OPENNI\_LIBRARY\_DIR actually exist and have the necessary files. In my case, this was an issue because they were linking to the x64 libs (in c:/Program Files/....) instead of the x86 libs (in c:/Program Files (x86)/....). Make sure this is set correctly for your architecture or you will get build/link problems. Make sure the directories pointed to actually exist! The original CMake config had an extra space in the path "Prime Sense" instead of "PrimeSense" I think...
+ * Make sure NITE\_INCLUDE\_DIR and NITE\_LIBRARY\_DIR as well as the OPENNI\_INCLUDE\_DIR and OPENNI\_LIBRARY\_DIR actually exist and have the necessary files. In my case, this was an issue because they were linking to the x64 libs (in c:/Program Files/....) instead of the x86 libs (in c:/Program Files (x86)/....). Make sure this is set correctly for your architecture or you will get build/link problems. Also make sure the directories pointed to actually exist! The original CMake config had an extra space in the path "Prime Sense" instead of "PrimeSense" I think...
 
 #### Compiler Compatability
 I've tried compiling the code under these environments:
