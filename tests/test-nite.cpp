@@ -264,7 +264,6 @@ int main(int argc, char **argv)
 	// Setup depth image
 	cv::Mat1b raw_depth_img;
 	image.depth().copyTo(raw_depth_img);
-	cv::Mat1b debug_depth_img = ;
 
 	customStart = GetTickCount();
 	// Setup custom image
