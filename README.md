@@ -83,7 +83,7 @@ My demo is just a modified version of test-nite.exe. Make sure you copied the co
 ## Demo Images / Video
 ### Images
 #### Color
-![](http://code.fromjeffrey.com/cs182a/asgt4/img/color.jpg)
+![](http://www.code.fromjeffrey.com/cs182a/asgt4/img/color.jpg)
 #### Depth
 <img src='http://code.fromjeffrey.com/cs182a/asgt4/img/depth.jpg' />
 #### Alignment (Overlaid in Photoshop)
