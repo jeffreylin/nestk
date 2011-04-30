@@ -36,12 +36,13 @@ using namespace ntk;
 
 namespace opt
 {
+  // Included with the original Nestk code. Not currently used/tested with DoF processing
   ntk::arg<bool> high_resolution("--highres", "High resolution color image.", 0);
 }
 
 int focalPointX = 320;
 int focalPointY = 240;
-bool updateFocalPoint = false;
+bool updateFocalPoint = false;	// wow... this is friggin hackish x.x
 
 void customWindowMouseCallback(int event, int x, int y, int flags, void* param){
 	switch(event){
@@ -57,14 +58,14 @@ void customWindowMouseCallback(int event, int x, int y, int flags, void* param){
 void findMinAndMaxAndNumberOfUniques(cv::Mat1f arr){
 	int w = arr.cols;
 	int h = arr.rows;
-	float depth_min = 2048.0;	// v. bad i know - too lazy to look up int class
+	float depth_min = 2048.0;	// v. bad i know - too lazy to look up int class min/max vals
 	float depth_max = -2048.0;
 	std::set<float> uniqueFloats;
 	for(int i=0; i<h; i++){
 		for(int j=0; j<w; j++){
 			float val = arr(i,j);	//does this work?	//yep =]
 			//^ are these in meters =D? - seems like it
-			//the measuring tape agrees!
+			//the tape measure agrees!
 			if(val<depth_min){depth_min=val;}
 			if(depth_max<val){depth_max=val;}
 			uniqueFloats.insert(val);
@@ -87,26 +88,6 @@ float film35MMToScreen(float in){
 	return in * (HORIZONTAL_PIXELS/FILM_WIDTH);
 }
 
-// DEPRECATED
-/*
-float metersToPixels(float m){
-	// SCREEN PROPERTIES
-	float SCREEN_DIAGONAL = 12.1;	//in inches
-	float HORIZONTAL_PIXELS = 1280;	//in pixels
-	float VERTICAL_PIXELS = 800;	//in pixels
-	
-	// CONSTANTS
-	float INCHES_IN_A_METER = 39.3700787;	//in inches/meter
-
-	float diagonalInPixels = 
-		HORIZONTAL_PIXELS / cos( 
-			atan( VERTICAL_PIXELS / HORIZONTAL_PIXELS )
-		);
-	float diagonalInMeters = SCREEN_DIAGONAL / INCHES_IN_A_METER;
-	return m * (diagonalInPixels/diagonalInMeters);
-}
-*/
-
 // try f = 0.035m, n = 1.4
 float getCircleOfConfusion(float focalLength, float fStop, float focusedDistance, float subjectDistance){
 	// via http://en.wikipedia.org/wiki/Circle_of_confusion
@@ -118,6 +99,7 @@ float getCircleOfConfusion(float focalLength, float fStop, float focusedDistance
 }
 
 int roundToNearestOdd(float in){
+	// we do this, because the Gaussian filter in OpenCV expects odd filter sizes
 	return int(in/2)*2+1;
 }
 
