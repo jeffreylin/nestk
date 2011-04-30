@@ -23,7 +23,6 @@ Right here in [this](https://github.com/ifallacy/nestk) github repo.
 Originally, I tried to extend nburrus' [rgbdemo](https://github.com/nburrus/rgbdemo), but couldn't get it to compile. In the end, I finally got nburrus' [nestk](https://github.com/nburrus/nestk) library to compile by following his demo [instructions](http://nicolas.burrus.name/index.php/Research/KinectUseNestk) and simply modified one of the [test apps](https://github.com/ifallacy/nestk/blob/master/tests/test-nite.cpp) to do my DoF processing.
 
 ### Running the code
-
 Please read this entire section before starting! It will make your life much better/easier if you do. =]
 
 #### Pre-Requisites
@@ -113,6 +112,7 @@ My demo is just a modified version of test-nite.exe. Make sure you copied the co
  * [Circle of Confusion on Wikipedia](http://en.wikipedia.org/wiki/Circle_of_confusion) - Especially the section on [Determining a circle of confusion diameter from the object field](http://en.wikipedia.org/wiki/Circle_of_confusion#Determining_a_circle_of_confusion_diameter_from_the_object_field)
  * [Real-Time Depth of Field Rendering in Starcraft II](http://developer.amd.com/documentation/presentations/legacy/Chapter05-Filion-StarCraftII.pdf) - See section starting on p153
  * [Practical Post-Process Depth of Field in Call of Duty 4: Modern Warfare](http://http.developer.nvidia.com/GPUGems3/gpugems3_ch28.html)
+
 ### Nestk Links
  * [Kinect Calibration Theory](http://nicolas.burrus.name/index.php/Research/KinectCalibration)
  * [Kinect RGB Demo v0.5.0 docs](http://nicolas.burrus.name/index.php/Research/KinectRgbDemoV5)
