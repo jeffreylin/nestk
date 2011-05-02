@@ -1,7 +1,7 @@
 # CS182a Final Assignment
 
 ## Note to those on Github
-This isn't really an extension of nburrus' nestk library - I forked so that I could easily merge any future commits to the original library. IE: don't expect to find any improvements to nburrus' original library here - this is just a terribly hacked project I did for fun (oh, and for class too I guess =]). 
+This isn't really an extension of nburrus' nestk library - I forked so that I could easily merge any future commits to the original library. IE: don't expect to find any improvements to nburrus' original library here - this is just a terribly hackish project I did for fun (oh, and for class too I guess =]). 
 
 Happy hacking! =]
 
