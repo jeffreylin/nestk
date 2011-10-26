@@ -17,7 +17,7 @@ This code uses the Microsoft Kinect to render real life images with arbitrary [d
 
 ## The Code
 ### Where
-Right here in [this](https://github.com/ifallacy/nestk) github repo.
+Right here in [this](https://github.com/jeffreylin/nestk) github repo.
 
 ### How is the code structured?
 Originally, I tried to extend nburrus' [rgbdemo](https://github.com/nburrus/rgbdemo), but couldn't get it to compile. In the end, I finally got nburrus' [nestk](https://github.com/nburrus/nestk) library to compile by following his demo [instructions](http://nicolas.burrus.name/index.php/Research/KinectUseNestk) and simply modified one of the [test apps](https://github.com/ifallacy/nestk/blob/master/tests/test-nite.cpp) to do my DoF processing.
